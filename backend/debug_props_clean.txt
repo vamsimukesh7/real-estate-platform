@@ -1,0 +1,44 @@
+Checking properties for user: 6974b0bd62872f232fb79b91
+
+--- Found 12 Payments ---
+Tx 69752bdc8e4c0e932ab69a70: Amount -3500 -> Ref 6974d54b5b131cce32b2a681
+Tx 69752d278e4c0e932ab6a1ba: Amount -2200 -> Ref 6974d54b5b131cce32b2a67f
+Tx 69752db88e4c0e932ab6a406: Amount -1200 -> Ref 6974d54b5b131cce32b2a679
+Tx 69752e9a8e4c0e932ab6ac10: Amount -4500 -> Ref 6974d54b5b131cce32b2a67b
+Tx 69752f4f8e4c0e932ab6b11a: Amount -2500 -> Ref 6974d55ff5a89187aad60de0
+Tx 69752f7d8e4c0e932ab6b273: Amount -2800 -> Ref 6974d54b5b131cce32b2a67d
+Tx 69752f978e4c0e932ab6b599: Amount -400000 -> Ref 6974d55ff5a89187aad60ddc
+Tx 69752f9a8e4c0e932ab6b620: Amount -1250000 -> Ref 6974d55ff5a89187aad60dda
+Tx 697530148e4c0e932ab6be5f: Amount -4500 -> Ref 6974d54b5b131cce32b2a67b
+Tx 697530868e4c0e932ab6c20a: Amount -2500 -> Ref 6974d55ff5a89187aad60de0
+Tx 697531408e4c0e932ab6c8b9: Amount -2200 -> Ref 6974d54b5b131cce32b2a67f
+Tx 697532ac8e4c0e932ab6d267: Amount -2800 -> Ref 6974d54b5b131cce32b2a67d
+Unique Property References (8): 6974d54b5b131cce32b2a681, 6974d54b5b131cce32b2a67f, 6974d54b5b131cce32b2a679, 6974d54b5b131cce32b2a67b, 6974d55ff5a89187aad60de0, 6974d54b5b131cce32b2a67d, 6974d55ff5a89187aad60ddc, 6974d55ff5a89187aad60dda
+
+--- Found 8 Properties from Tx ---
+[6974d54b5b131cce32b2a679] Cozy Studio Apartment | Status: Rented | ListingType: Rent | Price: 1200
+    Owner: 697507187440136259a51f6e | Tenant: 6974b0bd62872f232fb79b91
+[6974d54b5b131cce32b2a67b] Luxury 2BR Penthouse | Status: Rented | ListingType: Rent | Price: 4500
+    Owner: 697507187440136259a51f6b | Tenant: 6974b0bd62872f232fb79b91
+[6974d54b5b131cce32b2a67d] Suburban 3BR House | Status: Rented | ListingType: Rent | Price: 2800
+    Owner: 697507187440136259a51f6e | Tenant: 6974b0bd62872f232fb79b91
+[6974d54b5b131cce32b2a67f] Modern Loft in Arts District | Status: Active | ListingType: Rent | Price: 2200
+    Owner: 697507187440136259a51f6e | Tenant: 6974b0bd62872f232fb79b91
+[6974d54b5b131cce32b2a681] Beachside Cottage | Status: Rented | ListingType: Rent | Price: 3500
+    Owner: 6974a20a1fbe1383ce460265 | Tenant: 6974b0bd62872f232fb79b91
+[6974d55ff5a89187aad60dda] Modern Villa with Ocean View | Status: Sold | ListingType: Sale | Price: 1250000
+    Owner: 6974b0bd62872f232fb79b91 | Tenant: null
+[6974d55ff5a89187aad60ddc] Luxury Downtown Apartment | Status: Sold | ListingType: Sale | Price: 400000
+    Owner: 6974b0bd62872f232fb79b91 | Tenant: null
+[6974d55ff5a89187aad60de0] Contemporary Townhouse | Status: Active | ListingType: Rent | Price: 2500
+    Owner: 6974a20a1fbe1383ce460265 | Tenant: 6974b0bd62872f232fb79b91
+
+--- Found 8 Properties Direct Search ---
+[6974d54b5b131cce32b2a679] Cozy Studio Apartment | Owner match: false | Tenant match: true
+[6974d54b5b131cce32b2a67b] Luxury 2BR Penthouse | Owner match: false | Tenant match: true
+[6974d54b5b131cce32b2a67d] Suburban 3BR House | Owner match: false | Tenant match: true
+[6974d54b5b131cce32b2a67f] Modern Loft in Arts District | Owner match: false | Tenant match: true
+[6974d54b5b131cce32b2a681] Beachside Cottage | Owner match: false | Tenant match: true
+[6974d55ff5a89187aad60dda] Modern Villa with Ocean View | Owner match: true | Tenant match: false
+[6974d55ff5a89187aad60ddc] Luxury Downtown Apartment | Owner match: true | Tenant match: false
+[6974d55ff5a89187aad60de0] Contemporary Townhouse | Owner match: false | Tenant match: true

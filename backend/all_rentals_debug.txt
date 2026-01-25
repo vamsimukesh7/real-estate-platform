@@ -1,0 +1,15 @@
+Total Rentals in DB: 13
+
+ID: 6974a57fed4f6b33d5452ac1 | Name: Contemporary Townhouse | Status: Active | Blocked: false
+ID: 6974a5905fb65d511b0248df | Name: Contemporary Townhouse | Status: Active | Blocked: false
+ID: 6974ab67f49e3b55206e0f43 | Name: Cozy Studio Apartment | Status: Active | Blocked: false
+ID: 6974ab67f49e3b55206e0f45 | Name: Luxury 2BR Penthouse | Status: Active | Blocked: false
+ID: 6974ab67f49e3b55206e0f47 | Name: Suburban 3BR House | Status: Active | Blocked: false
+ID: 6974ab67f49e3b55206e0f49 | Name: Modern Loft in Arts District | Status: Active | Blocked: false
+ID: 6974ab67f49e3b55206e0f4b | Name: Beachside Cottage | Status: Active | Blocked: false
+ID: 6974d54b5b131cce32b2a679 | Name: Cozy Studio Apartment | Status: Active | Blocked: false
+ID: 6974d54b5b131cce32b2a67b | Name: Luxury 2BR Penthouse | Status: Active | Blocked: false
+ID: 6974d54b5b131cce32b2a67d | Name: Suburban 3BR House | Status: Active | Blocked: false
+ID: 6974d54b5b131cce32b2a67f | Name: Modern Loft in Arts District | Status: Active | Blocked: false
+ID: 6974d54b5b131cce32b2a681 | Name: Beachside Cottage | Status: Active | Blocked: false
+ID: 6974d55ff5a89187aad60de0 | Name: Contemporary Townhouse | Status: Active | Blocked: false
