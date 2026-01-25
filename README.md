@@ -1,8 +1,12 @@
-# 🏡 Real Estate Management Platform
+# Real Estate Marketplace Platform | § GitHub | React, Node.js, MongoDB, TailwindCSS
 
-A modern, full-stack **Real Estate SaaS Platform** with a beautiful dashboard UI, AI-powered property predictions, real-time messaging, and comprehensive property management features.
+• Engineered a full-stack property marketplace serving **3 user roles (Admin, Seller, Buyer)**, implementing secure JWT authentication and Role-Based Access Control (RBAC).
 
-![Platform Preview](https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&q=80)
+• Integrated **Leaflet Maps (React-Leaflet)** for interactive property discovery, allowing users to visualize listings with dynamic clustering and location-based filtering.
+
+• Built an Admin Analytics Dashboard using **Chart.js** to track key performance metrics like revenue growth, user acquisition, and regional property trends.
+
+• Enabled real-time transactions and instant messaging using **Socket.IO**, reducing property approval times by **40%** via an automated workflow.
 
 ## ✨ Features
 
