@@ -52,3 +52,7 @@ MICROSERVICES_SETUP.md
 QUICKSTART.md
 ROLE_BASED_AUTH.md
 SERVICES.md
+
+# Ignore all markdown files except README
+*.md
+!README.md
