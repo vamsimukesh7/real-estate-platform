@@ -8,9 +8,24 @@
     @apply border-border;
   }
 
+  html {
+    @apply dark:bg-dark-900;
+    font-size: 90%;
+    /* Scale down the whole page */
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased;
-    zoom: 0.75;
+    @apply bg-gray-50 text-gray-900 font-sans antialiased dark:bg-dark-900 dark:text-gray-100;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    min-height: 100%;
   }
 
   h1,
@@ -36,7 +51,7 @@
 
   /* Card Styles */
   .card {
-    @apply bg-white rounded-2xl shadow-soft border border-gray-100 transition-all duration-300;
+    @apply bg-white rounded-xl shadow-soft border border-gray-100 transition-all duration-300 relative;
   }
 
   .card:hover {
@@ -45,7 +60,7 @@
 
   /* Button Styles */
   .btn {
-    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300 inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300 inline-flex items-center justify-center gap-2;
   }
 
   .btn-primary {
@@ -62,7 +77,7 @@
 
   /* Input Styles */
   .input {
-    @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all duration-200 outline-none;
+    @apply w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all duration-200 outline-none;
   }
 
   /* Badge Styles */
@@ -88,7 +103,7 @@
 
   /* Sidebar Styles */
   .sidebar-item {
-    @apply flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer;
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer;
   }
 
   .sidebar-item:hover {

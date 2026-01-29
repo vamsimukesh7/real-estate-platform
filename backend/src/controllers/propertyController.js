@@ -62,7 +62,17 @@ export const getProperties = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    const properties = await Property.find(query)
+    const properties = await Property.find(query, {
+      description: 0,
+      amenities: 0,
+      videos: 0,
+      virtualTour: 0,
+      aiPredictions: 0,
+      'specifications.lotSize': 0,
+      'specifications.yearBuilt': 0,
+      'specifications.floors': 0,
+      'specifications.parking': 0
+    })
       .populate('owner', 'name email avatar')
       .populate('agent', 'name email phone avatar agentDetails')
       .sort(sort)
@@ -786,8 +796,19 @@ export const approveBuy = async (req, res) => {
         `The seller has approved your purchase of ${property.name}. You are now the official owner/tenant.`,
         `/properties/${property._id}`
       );
+
+      // Notify Seller about money credit
+      if (seller) {
+        await createNotification(
+          seller._id,
+          'System',
+          'Money Credited! 💸',
+          `Your sale/rental of ${property.name} has been approved. $${property.price.toLocaleString()} has been added to your wallet.`,
+          '/wallet'
+        );
+      }
     } catch (notifErr) {
-      console.error('Error sending approval notification:', notifErr);
+      console.error('Error sending notifications:', notifErr);
     }
 
     const mappedProperty = {

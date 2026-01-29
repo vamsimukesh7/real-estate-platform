@@ -22,6 +22,7 @@ const services = {
   property: process.env.PROPERTY_SERVICE_URL || 'http://localhost:5002',
   messaging: process.env.MESSAGING_SERVICE_URL || 'http://localhost:5003',
   ai: process.env.AI_SERVICE_URL || 'http://localhost:5004',
+  wallet: process.env.WALLET_SERVICE_URL || 'http://localhost:5005',
 };
 
 // Authentication middleware for gateway
@@ -122,8 +123,10 @@ const proxyOptions = (target) => ({
 app.use('/api/auth', authenticateToken, createProxyMiddleware(proxyOptions(services.auth)));
 app.use('/api/users', authenticateToken, createProxyMiddleware(proxyOptions(services.auth)));
 app.use('/api/properties', authenticateToken, createProxyMiddleware(proxyOptions(services.property)));
+app.use('/api/bookings', authenticateToken, createProxyMiddleware(proxyOptions(services.property)));
 app.use('/api/messages', authenticateToken, createProxyMiddleware(proxyOptions(services.messaging)));
 app.use('/api/ai', authenticateToken, createProxyMiddleware(proxyOptions(services.ai)));
+app.use('/api/wallet', authenticateToken, createProxyMiddleware(proxyOptions(services.wallet)));
 
 // Catch-all for undefined routes
 app.use('*', (req, res) => {

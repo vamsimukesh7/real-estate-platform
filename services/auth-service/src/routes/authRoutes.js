@@ -1,26 +1,20 @@
 import express from 'express';
-import {
-  register,
-  login,
-  getMe,
-  logout,
-  refreshToken,
-  verifyEmail,
-  changePassword,
-} from '../controllers/authController.js';
+import { register, login, getMe, updateProfile, getSavedProperties, updatePassword } from '../controllers/userController.js';
 import { protect } from '../middlewares/auth.js';
 
 const router = express.Router();
 
-// Public routes
+// Public routes (auth endpoints)
 router.post('/register', register);
 router.post('/login', login);
-router.get('/verify/:token', verifyEmail);
 
 // Protected routes
 router.get('/me', protect, getMe);
-router.post('/logout', protect, logout);
-router.post('/refresh', protect, refreshToken);
-router.put('/change-password', protect, changePassword);
+router.post('/logout', protect, (req, res) => {
+  res.json({ success: true, message: 'Logged out successfully' });
+});
+router.put('/profile', protect, updateProfile);
+router.get('/saved-properties', protect, getSavedProperties);
+router.put('/update-password', protect, updatePassword);
 
 export default router;

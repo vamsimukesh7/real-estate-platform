@@ -102,55 +102,54 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     return (
         <motion.aside
             initial={{ x: -280 }}
-            animate={{ x: 0, width: collapsed ? 80 : 280 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="fixed left-0 top-0 h-[133.34vh] bg-gradient-to-b from-dark-900 via-dark-800 to-dark-900 text-white shadow-2xl z-50 overflow-hidden"
+            animate={{ x: 0, width: collapsed ? 64 : 240 }}
+            transition={{ duration: 0.3, ease: 'linear' }}
+            style={{ willChange: 'width, transform' }}
+            className="fixed left-0 top-0 h-screen bg-dark-900 border-r border-white/5 text-white shadow-2xl z-[110] transition-all duration-300"
         >
-            {/* Toggle Button */}
+            {/* Toggle Button - Adjusted position and z-index */}
             <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="absolute -right-3 top-8 bg-white text-gray-700 rounded-full p-1.5 shadow-lg hover:bg-gray-100 transition-all duration-200 z-10"
+                className="absolute -right-4 top-10 bg-primary-600 text-white rounded-full p-2 shadow-xl hover:bg-primary-500 hover:scale-110 active:scale-95 transition-all duration-200 z-[120] border-2 border-dark-900"
             >
                 <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} />
             </button>
 
-            <div className="h-full flex flex-col p-4 custom-scrollbar overflow-y-auto">
+            <div className="h-full flex flex-col p-4 custom-scrollbar overflow-y-auto overflow-x-hidden">
                 {/* Profile Section */}
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="mb-8 pt-4"
+                    className="mb-10 mt-6"
                 >
                     {user ? (
-                        <div className="flex items-center gap-2 p-2 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer">
+                        <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} p-2.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 cursor-pointer group`}>
                             <div className="relative shrink-0">
-                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-400 to-purple-500 flex items-center justify-center ring-2 ring-white/20">
-                                    <span className="text-lg font-bold">{user.name?.charAt(0) || 'U'}</span>
+                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary-400 to-indigo-500 flex items-center justify-center ring-2 ring-white/20 group-hover:ring-primary-400/50 transition-all">
+                                    <span className="text-xl font-black text-white">{user.name?.charAt(0) || 'U'}</span>
                                 </div>
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-dark-900"></div>
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-dark-900 shadow-sm"></div>
                             </div>
                             {!collapsed && (
                                 <div className="flex-1 overflow-hidden min-w-0">
-                                    <h3 className="font-semibold text-sm truncate">{user.name || 'User'}</h3>
-                                    <p className="text-xs text-gray-400 truncate">{user.role || 'Member'}</p>
+                                    <h3 className="font-bold text-sm text-white truncate">{user.name || 'User'}</h3>
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate">{user.role || 'Member'}</p>
                                 </div>
                             )}
                         </div>
                     ) : (
                         <div
                             onClick={() => navigate('/login')}
-                            className="flex items-center gap-3 p-3 rounded-2xl bg-primary-600/20 border border-primary-500/30 text-primary-400 hover:bg-primary-600/30 transition-all duration-300 cursor-pointer"
+                            className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} p-3 rounded-2xl bg-primary-600/10 border border-primary-500/20 text-primary-400 hover:bg-primary-600/20 transition-all duration-300 cursor-pointer group`}
                         >
-                            <div className="relative">
-                                <div className="w-12 h-12 rounded-full bg-primary-900 flex items-center justify-center ring-2 ring-primary-500/50">
-                                    <User className="w-6 h-6" />
-                                </div>
+                            <div className="w-11 h-11 rounded-full bg-primary-900/50 flex items-center justify-center ring-2 ring-primary-500/30 group-hover:ring-primary-500 transition-all">
+                                <User className="w-6 h-6" />
                             </div>
                             {!collapsed && (
                                 <div className="flex-1 overflow-hidden">
-                                    <h3 className="font-semibold text-sm">Login / Signup</h3>
-                                    <p className="text-xs text-primary-300">Access your account</p>
+                                    <h3 className="font-bold text-sm">Sign In</h3>
+                                    <p className="text-[10px] uppercase font-bold text-primary-300/60 tracking-tighter">Join the community</p>
                                 </div>
                             )}
                         </div>

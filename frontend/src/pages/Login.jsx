@@ -26,25 +26,25 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-            <div className="glass max-w-md w-full p-8 rounded-2xl shadow-xl">
+        <div className="min-h-screen bg-gray-50 dark:bg-dark-900 flex items-center justify-center p-4 transition-colors duration-300">
+            <div className="glass dark:bg-dark-800/80 dark:border-dark-700 max-w-md w-full p-8 rounded-2xl shadow-xl">
                 <div className="text-center mb-8">
-                    <div className="bg-primary-50 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-primary-600">
+                    <div className="bg-primary-50 dark:bg-primary-900/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 text-primary-600 dark:text-primary-400">
                         <Home size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>
-                    <p className="text-gray-500 mt-2">Sign in to your account to continue</p>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h2>
+                    <p className="text-gray-500 dark:text-gray-400 mt-2">Sign in to your account to continue</p>
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 flex items-center">
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm mb-6 flex items-center">
                         {error}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
                         <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                             <input
@@ -52,14 +52,14 @@ const Login = () => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="input pl-10"
+                                className="input pl-10 dark:bg-dark-700 dark:border-dark-600 dark:text-white"
                                 placeholder="you@example.com"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
                         <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                             <input
@@ -67,7 +67,7 @@ const Login = () => {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="input pl-10"
+                                className="input pl-10 dark:bg-dark-700 dark:border-dark-600 dark:text-white"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -82,9 +82,9 @@ const Login = () => {
                     </button>
                 </form>
 
-                <p className="textAlign-center mt-6 text-gray-600 text-center">
+                <p className="textAlign-center mt-6 text-gray-600 dark:text-gray-400 text-center">
                     Don't have an account?{' '}
-                    <Link to="/register" className="text-primary-600 font-medium hover:text-primary-700">
+                    <Link to="/register" className="text-primary-600 dark:text-primary-400 font-medium hover:text-primary-700">
                         Create account
                     </Link>
                 </p>

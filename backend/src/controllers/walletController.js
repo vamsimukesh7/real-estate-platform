@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import Transaction from '../models/Transaction.js';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import { createNotification } from './userController.js';
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
@@ -86,6 +87,19 @@ export const verifyRazorpayPayment = async (req, res) => {
                 metadata: { orderId: razorpay_order_id }
               });
 
+              // Notify User
+              try {
+                await createNotification(
+                  user._id,
+                  'System',
+                  'Wallet Credited! 💳',
+                  `$${Number(amount).toLocaleString()} has been added to your wallet via Razorpay.`,
+                  '/wallet'
+                );
+              } catch (notifErr) {
+                console.error('Error sending deposit notification:', notifErr);
+              }
+
               return res.json({
                 success: true,
                 message: "Payment verified and wallet updated",
@@ -128,6 +142,19 @@ export const depositFunds = async (req, res) => {
       status: 'Completed',
     });
 
+    // Notify User
+    try {
+      await createNotification(
+        user._id,
+        'System',
+        'Wallet Credited! 💳',
+        `$${Number(amount).toLocaleString()} has been added to your wallet (Simulation).`,
+        '/wallet'
+      );
+    } catch (notifErr) {
+      console.error('Error sending simulator deposit notification:', notifErr);
+    }
+
     res.json({
       success: true,
       balance: user.walletBalance,
@@ -166,6 +193,19 @@ export const withdrawFunds = async (req, res) => {
       description: description || 'Withdraw funds from wallet',
       status: 'Completed',
     });
+
+    // Notify User
+    try {
+      await createNotification(
+        user._id,
+        'System',
+        'Withdrawal Successful! 💸',
+        `$${Number(amount).toLocaleString()} has been withdrawn from your wallet.`,
+        '/wallet'
+      );
+    } catch (notifErr) {
+      console.error('Error sending withdrawal notification:', notifErr);
+    }
 
     res.json({
       success: true,

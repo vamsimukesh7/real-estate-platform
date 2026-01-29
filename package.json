@@ -1,0 +1,20 @@
+{
+    "name": "real-estate-platform",
+    "private": true,
+    "workspaces": [
+        "frontend",
+        "services/*"
+    ],
+    "scripts": {
+        "start:auth": "cd services/auth-service && npm run dev",
+        "start:property": "cd services/property-service && npm run dev",
+        "start:messaging": "cd services/messaging-service && npm run dev",
+        "start:wallet": "cd services/wallet-service && npm run dev",
+        "start:gateway": "cd services/api-gateway && npm run dev",
+        "start:frontend": "cd frontend && npm run dev",
+        "start:all": "concurrently \"npm run start:auth\" \"npm run start:property\" \"npm run start:messaging\" \"npm run start:wallet\" \"npm run start:gateway\" \"npm run start:frontend\""
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.1"
+    }
+}

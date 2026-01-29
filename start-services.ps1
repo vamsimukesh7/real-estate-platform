@@ -25,6 +25,18 @@ Start-Sleep -Seconds 2
 Start-Service -ServiceName "Property Service" -Path "$BaseDir\services\property-service" -Port 5002
 Start-Sleep -Seconds 2
 
+# Start Messaging Service
+Start-Service -ServiceName "Messaging Service" -Path "$BaseDir\services\messaging-service" -Port 5003
+Start-Sleep -Seconds 2
+
+# Start Wallet Service
+Start-Service -ServiceName "Wallet Service" -Path "$BaseDir\services\wallet-service" -Port 5005
+Start-Sleep -Seconds 2
+
+# Start AI Service
+Start-Service -ServiceName "AI Service" -Path "$BaseDir\services\ai-service" -Port 5004
+Start-Sleep -Seconds 2
+
 # Start API Gateway
 Start-Service -ServiceName "API Gateway" -Path "$BaseDir\services\api-gateway" -Port 5000
 Start-Sleep -Seconds 2
@@ -39,6 +51,9 @@ Write-Host "Service URLs:" -ForegroundColor Yellow
 Write-Host "  - API Gateway:      http://localhost:5000" -ForegroundColor White
 Write-Host "  - Auth Service:     http://localhost:5001" -ForegroundColor White
 Write-Host "  - Property Service: http://localhost:5002" -ForegroundColor White
+Write-Host "  - Messaging Service:http://localhost:5003" -ForegroundColor White
+Write-Host "  - AI Service:       http://localhost:5004" -ForegroundColor White
+Write-Host "  - Wallet Service:   http://localhost:5005" -ForegroundColor White
 Write-Host "  - Frontend:         http://localhost:5173" -ForegroundColor White
 Write-Host ""
 Write-Host "📖 Check MICROSERVICES_STARTUP.md for testing instructions" -ForegroundColor Cyan

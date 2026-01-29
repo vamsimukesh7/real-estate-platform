@@ -59,7 +59,7 @@ const TopBar = ({ showMap, setShowMap, filters, setFilters }) => {
     );
 
     return (
-        <div className="bg-white dark:bg-dark-900 border-b border-gray-100 dark:border-dark-700 sticky top-0 z-[60] transition-colors duration-300">
+        <div className="bg-white dark:bg-dark-900 border-b border-gray-100 dark:border-dark-700 sticky top-0 z-[100] transition-colors duration-300">
             {/* Tabs Section */}
             <div className="px-6 pt-6 pb-4 border-b border-gray-100 dark:border-dark-700">
                 <div className="flex items-center gap-2">

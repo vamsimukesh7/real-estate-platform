@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import Sidebar from '../components/layouts/Sidebar';
 import TopBar from '../components/layouts/TopBar';
@@ -184,7 +184,7 @@ const Dashboard = () => {
     };
 
     // Calculate dynamic stats based on actual data
-    const calculateStats = () => {
+    const stats = useMemo(() => {
         const totalProperties = properties.length;
         const activeProperties = properties.filter(p => p.status === 'Active' || p.status === 'For Sale' || p.status === 'For Rent' || p.listingType === 'Sale' || p.listingType === 'Rent').length;
         const soldProperties = properties.filter(p => p.status === 'Sold' || p.status === 'Rented').length;
@@ -232,9 +232,7 @@ const Dashboard = () => {
                 color: 'from-orange-500 to-red-500',
             },
         ];
-    };
-
-    const stats = calculateStats();
+    }, [properties]);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-dark-900 transition-colors duration-300">
@@ -243,7 +241,7 @@ const Dashboard = () => {
 
             {/* Main Content */}
             <div
-                className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-[280px]'
+                className={`transition-[margin] duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-[240px]'
                     }`}
             >
                 {/* Top Bar */}
@@ -253,15 +251,15 @@ const Dashboard = () => {
                 <div className="p-6">
                     {/* Stats Cards - Only visible to Admin */}
                     {isAdmin() && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             {stats.map((stat, index) => {
                                 const Icon = stat.icon;
                                 return (
                                     <motion.div
                                         key={stat.label}
-                                        initial={{ opacity: 0, y: 20 }}
+                                        initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: index * 0.1 }}
+                                        transition={{ delay: index * 0.05 }}
                                         className="card p-6 hover-lift bg-white dark:bg-dark-800 border-gray-100 dark:border-dark-700"
                                     >
                                         <div className="flex items-start justify-between mb-4">
@@ -312,56 +310,58 @@ const Dashboard = () => {
                             </div>
 
                             <div
-                                className={`grid gap-6 ${showMap
-                                    ? 'grid-cols-1 xl:grid-cols-2'
-                                    : 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                                className={`grid gap-4 items-start ${showMap
+                                    ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
+                                    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
                                     }`}
                             >
-                                {filters.type === 'Blocked' && filteredProperties.length === 0 ? (
-                                    <div className="col-span-full text-center py-16">
-                                        <div className="max-w-md mx-auto">
-                                            <div className="text-6xl mb-4">🛡️</div>
-                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                                                No Blocked Properties
+                                <AnimatePresence mode="popLayout">
+                                    {filters.type === 'Blocked' && filteredProperties.length === 0 ? (
+                                        <div className="col-span-full text-center py-16">
+                                            <div className="max-w-md mx-auto">
+                                                <div className="text-6xl mb-4">🛡️</div>
+                                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                                    No Blocked Properties
+                                                </h3>
+                                                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                                                    There are currently no blocked properties. Blocked properties will appear here.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : filters.type === 'Sold' && filteredProperties.length === 0 ? (
+                                        <div className="col-span-full text-center py-16">
+                                            <div className="max-w-md mx-auto">
+                                                <div className="text-6xl mb-4">✅</div>
+                                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                                                    Sold Properties
+                                                </h3>
+                                                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                                                    This section shows all properties that have been successfully sold or rented.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : filteredProperties.length > 0 ? (
+                                        filteredProperties.map((property, index) => (
+                                            <PropertyCard
+                                                key={property.id}
+                                                property={property}
+                                                index={index}
+                                                onUpdate={handlePropertyUpdate}
+                                                onMessage={handleMessage}
+                                            />
+                                        ))
+                                    ) : (
+                                        <div className="col-span-full text-center py-16">
+                                            <div className="text-6xl mb-4">🏠</div>
+                                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                                                No properties found
                                             </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                                There are currently no blocked properties. Blocked properties will appear here.
+                                            <p className="text-gray-600 dark:text-gray-400">
+                                                Try adjusting your filters or search criteria
                                             </p>
                                         </div>
-                                    </div>
-                                ) : filters.type === 'Sold' && filteredProperties.length === 0 ? (
-                                    <div className="col-span-full text-center py-16">
-                                        <div className="max-w-md mx-auto">
-                                            <div className="text-6xl mb-4">✅</div>
-                                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                                                Sold Properties
-                                            </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                                This section shows all properties that have been successfully sold or rented.
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : filteredProperties.length > 0 ? (
-                                    filteredProperties.map((property, index) => (
-                                        <PropertyCard
-                                            key={property.id}
-                                            property={property}
-                                            index={index}
-                                            onUpdate={handlePropertyUpdate}
-                                            onMessage={handleMessage}
-                                        />
-                                    ))
-                                ) : (
-                                    <div className="col-span-full text-center py-16">
-                                        <div className="text-6xl mb-4">🏠</div>
-                                        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                            No properties found
-                                        </h3>
-                                        <p className="text-gray-600 dark:text-gray-400">
-                                            Try adjusting your filters or search criteria
-                                        </p>
-                                    </div>
-                                )}
+                                    )}
+                                </AnimatePresence>
                             </div>
                         </div>
 

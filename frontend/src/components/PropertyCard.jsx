@@ -121,7 +121,7 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`card group overflow-hidden hover-lift cursor-pointer relative ${property.blocked ? 'opacity-75 grayscale-[0.5]' : ''} ${isExpanded ? 'ring-2 ring-primary-500 shadow-2xl' : ''}`}
+                className={`card group overflow-hidden hover-lift cursor-pointer relative flex flex-col ${property.blocked ? 'opacity-75 grayscale-[0.5]' : ''} ${isExpanded ? 'ring-2 ring-primary-500 shadow-2xl' : ''}`}
                 onClick={handleCardClick}
             >
                 {/* Status Overlays */}
@@ -143,11 +143,13 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                 )}
 
                 {/* Image Section */}
-                <div className="relative overflow-hidden rounded-t-2xl h-56">
+                <div className="relative overflow-hidden rounded-t-xl h-44">
                     <img
                         src={property.image}
                         alt={property.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-gray-100 dark:bg-dark-800"
                     />
 
                     {/* Overlay Gradient */}
@@ -236,6 +238,19 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                         </div>
                     )}
 
+                    {/* Message Button inside Image container */}
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (onMessage) onMessage(property.owner || property.agent || { _id: 'placeholder', name: 'Agent', avatar: null });
+                        }}
+                        onMouseDown={(e) => e.stopPropagation()}
+                        className="absolute top-16 right-4 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300 shadow-lg bg-white/90 dark:bg-dark-800/90 text-gray-500 dark:text-gray-400 hover:bg-white dark:hover:bg-dark-700 hover:text-blue-600 dark:hover:text-blue-400 hover:scale-110 active:scale-90 z-[70] cursor-pointer pointer-events-auto"
+                        title="Message Owner"
+                    >
+                        <MessageCircle className="w-5 h-5 pointer-events-none" />
+                    </button>
+
                     {/* Quick Stats on Hover */}
                     <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="flex gap-2">
@@ -251,47 +266,32 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                     </div>
                 </div>
 
-                {/* Message Button */}
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        // Prioritize Owner as requested, then Agent
-                        if (onMessage) onMessage(property.owner || property.agent || { _id: 'placeholder', name: 'Agent', avatar: null });
-                    }}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    className="absolute top-16 right-4 w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all duration-300 shadow-lg bg-white/90 text-gray-500 hover:bg-white hover:text-blue-600 hover:scale-110 active:scale-90 z-[60] cursor-pointer pointer-events-auto"
-                    title="Message Owner"
-                >
-                    <MessageCircle className="w-5 h-5 pointer-events-none" />
-                </button>
+
 
                 {/* Content Section */}
-                <div className="p-5">
+                <div className="p-4 flex flex-col gap-3">
                     {/* Price & Views */}
                     <div className="flex items-start justify-between mb-3">
                         <div>
-                            <h3 className="text-2xl font-bold text-gradient mb-1">
+                            <h3 className="text-xl font-bold text-gradient mb-1">
                                 ${property.price.toLocaleString()}
                             </h3>
                             <p className="text-sm text-gray-500">${property.sqft > 0 ? (property.price / property.sqft).toFixed(0) : 0}/sqft</p>
                         </div>
-                        <div className="flex flex-col items-end gap-1">
-                            <div className="flex items-center gap-1 text-gray-400 text-xs font-semibold bg-gray-50 dark:bg-dark-700/50 px-2 py-1 rounded-lg border border-gray-100 dark:border-dark-700">
-                                <Eye size={12} className="text-primary-500" />
-                                <span>{property.views || 0} views</span>
-                            </div>
+                        <div className="flex flex-col items-end gap-1 px-3 py-1 bg-primary-50 dark:bg-primary-900/10 rounded-lg border border-primary-100 dark:border-primary-900/20">
+                            <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase tracking-widest">{property.listingType || 'Sale'}</span>
                         </div>
                     </div>
 
                     {/* Property Name */}
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2 text-lg line-clamp-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1 text-base line-clamp-1">
                         {property.name}
                     </h4>
 
                     {/* Location */}
-                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-4">
-                        <MapPin className="w-4 h-4 text-primary-500" />
-                        <span className="text-sm line-clamp-1">{property.location}</span>
+                    <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400 mb-3">
+                        <MapPin className="w-3.5 h-3.5 text-primary-500" />
+                        <span className="text-xs line-clamp-1">{property.location}</span>
                     </div>
 
                     {/* Features */}
@@ -304,89 +304,84 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                             <Bath className="w-4 h-4" />
                             <span className="text-sm font-medium">{property.baths}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                            <Maximize className="w-4 h-4" />
-                            <span className="text-sm font-medium">{property.sqft} sqft</span>
+                        <div className="flex items-center gap-2 text-gray-500">
+                            <Maximize className="w-3.5 h-3.5" />
+                            <span className="text-xs font-medium">{property.sqft} sqft</span>
                         </div>
                     </div>
 
-                    {/* Expanded Content */}
-                    {isExpanded && (loadingDetails ? (
-                        <div className="mt-4 py-4 flex justify-center">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-                        </div>
-                    ) : (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-700"
-                        >
-                            <div className="space-y-4">
-                                <div>
-                                    <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</h5>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                                        {details?.description || 'No description available for this property.'}
-                                    </p>
-                                </div>
+                    {/* Main Content Area (Only shows when expanded) */}
+                    <div>
 
-                                {details?.features?.length > 0 && (
-                                    <div>
-                                        <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Features</h5>
-                                        <div className="flex flex-wrap gap-2">
-                                            {details.features.map((feature, i) => (
-                                                <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-dark-700 rounded-md text-xs text-gray-600 dark:text-gray-400">
-                                                    {feature}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {details?.amenities?.length > 0 && (
-                                    <div>
-                                        <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Amenities</h5>
-                                        <div className="flex flex-wrap gap-2">
-                                            {details.amenities.map((amenity, i) => (
-                                                <span key={i} className="px-2 py-1 bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 rounded-md text-xs border border-primary-100 dark:border-primary-900/20">
-                                                    {amenity}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="flex items-center justify-between text-xs text-gray-500 mt-2">
-                                    <span className="flex items-center gap-1">
-                                        <Eye className="w-3 h-3" />
-                                        {(details?.views || property.views || 0)} views
-                                    </span>
-                                    <span>Added {new Date(details?.createdAt || property.createdAt).toLocaleDateString()}</span>
-                                </div>
+                        {/* Expanded Details */}
+                        {isExpanded && (loadingDetails ? (
+                            <div className="mt-4 py-4 flex justify-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
                             </div>
-                        </motion.div>
-                    ))}
+                        ) : (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-700"
+                            >
+                                <div className="space-y-4">
+                                    <div>
+                                        <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</h5>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                                            {details?.description || 'No description available for this property.'}
+                                        </p>
+                                    </div>
 
-                    {/* Block Reason (Visible for Admin) */}
-                    {isAdmin() && property.blocked && property.blockReason && (
-                        <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/20">
-                            <p className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">Reason for block:</p>
-                            <p className="text-sm text-red-700 dark:text-red-300">{property.blockReason}</p>
-                        </div>
-                    )}
+                                    {details?.features?.length > 0 && (
+                                        <div>
+                                            <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Features</h5>
+                                            <div className="flex flex-wrap gap-2">
+                                                {details.features.map((feature, i) => (
+                                                    <span key={i} className="px-2 py-1 bg-gray-100 dark:bg-dark-700 rounded-md text-xs text-gray-600 dark:text-gray-400">
+                                                        {feature}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
 
-                    {/* Tags */}
-                    {property.tags && property.tags.length > 0 && !isExpanded && (
-                        <div className="flex flex-wrap gap-2 mt-4 mb-4">
-                            {property.tags.slice(0, 2).map((tag, idx) => (
-                                <span key={idx} className="badge badge-info text-xs">
-                                    {tag}
-                                </span>
-                            ))}
+                                    {details?.amenities?.length > 0 && (
+                                        <div>
+                                            <h5 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Amenities</h5>
+                                            <div className="flex flex-wrap gap-2">
+                                                {details.amenities.map((amenity, i) => (
+                                                    <span key={i} className="px-2 py-1 bg-primary-50 dark:bg-primary-900/10 text-primary-600 dark:text-primary-400 rounded-md text-xs border border-primary-100 dark:border-primary-900/20">
+                                                        {amenity}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ))}
+
+                        {/* Block Reason (Visible for Admin) */}
+                        {isAdmin() && property.blocked && property.blockReason && (
+                            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100 dark:border-red-900/20">
+                                <p className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider mb-1">Reason for block:</p>
+                                <p className="text-sm text-red-700 dark:text-red-300">{property.blockReason}</p>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer Metadata */}
+                    <div className="mt-1 pt-2 border-t border-gray-100 dark:border-dark-700 flex items-center justify-between text-[10px] font-bold uppercase tracking-tighter text-gray-400">
+                        <div className="flex items-center gap-1.5">
+                            <Eye size={11} className="text-primary-500" />
+                            <span>{(details?.views || property.views || 0).toLocaleString()} views</span>
                         </div>
-                    )}
+                    </div>
+
+
 
                     {/* Action Buttons */}
-                    <div className="flex gap-2 mt-4" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                    <div className="flex gap-2 mt-2" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
                         {/* Map Button (Visible to everyone) */}
                         <button
                             onClick={(e) => {
@@ -395,10 +390,10 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                                 window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
                             }}
                             onMouseDown={(e) => e.stopPropagation()}
-                            className="flex-1 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold shadow-sm hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer pointer-events-auto"
+                            className="flex-1 py-1.5 bg-white border border-gray-200 text-gray-700 rounded-lg font-bold shadow-sm hover:bg-gray-50 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-[10px] cursor-pointer pointer-events-auto"
                             title="Locate on Maps"
                         >
-                            <MapPin size={16} className="text-primary-500 pointer-events-none" />
+                            <MapPin size={12} className="text-primary-500 pointer-events-none" />
                             Locate
                         </button>
 
@@ -425,10 +420,10 @@ const PropertyCard = ({ property, index, onUpdate, onToggleCompare, isCompared, 
                             <button
                                 onClick={(e) => handleApprove(e)}
                                 onMouseDown={(e) => e.stopPropagation()}
-                                className="flex-[2] py-3 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-600/20 hover:bg-green-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-sm cursor-pointer pointer-events-auto z-[70]"
+                                className="flex-[2] py-2 bg-green-600 text-white rounded-lg font-bold shadow-md shadow-green-600/20 hover:bg-green-700 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 text-[10px] cursor-pointer pointer-events-auto z-[70]"
                             >
-                                <Shield className="w-4 h-4 pointer-events-none" />
-                                Approve Sale
+                                <Shield className="w-3 h-3 pointer-events-none" />
+                                Approve
                             </button>
                         )}
 

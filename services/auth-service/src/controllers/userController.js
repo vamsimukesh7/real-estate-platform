@@ -1,39 +1,162 @@
 import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
 
-// @desc    Get all users (Admin only)
-// @route   GET /api/users
-// @access  Private/Admin
-export const getUsers = async (req, res) => {
+// Generate JWT Token
+const generateToken = (id, role) => {
+  return jwt.sign(
+    { id, role }, 
+    process.env.JWT_SECRET || 'your-secret-key', 
+    { expiresIn: '30d' }
+  );
+};
+
+// @desc    Register user
+// @route   POST /api/users/register (for backward compatibility) OR /api/auth/register
+// @access  Public
+export const register = async (req, res) => {
   try {
-    const { role, verified, active, search, page = 1, limit = 10 } = req.query;
+    const { name, email, password, role, phone } = req.body;
 
-    const query = {};
-    
-    if (role) query.role = role;
-    if (verified !== undefined) query.verified = verified === 'true';
-    if (active !== undefined) query.active = active === 'true';
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-      ];
+    // Validation
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide name, email, and password' 
+      });
     }
 
-    const users = await User.find(query)
-      .select('-password')
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .sort({ createdAt: -1 });
+    // Check if user exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email already registered' 
+      });
+    }
 
-    const count = await User.countDocuments(query);
+    // Validate role - only allow Buyer or Seller for registration
+    const allowedRoles = ['Buyer', 'Seller'];
+    const userRole = allowedRoles.includes(role) ? role : 'Buyer';
+
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      phone,
+      role: userRole,
+    });
+
+    const token = generateToken(user._id, user.role);
+
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      token,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions || user.getDefaultPermissions(),
+        verified: user.verified,
+        active: user.active,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Login user
+// @route   POST /api/users/login (for backward compatibility) OR /api/auth/login
+// @access  Public
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Please provide email and password' 
+      });
+    }
+
+    // Check for user and include password, loginAttempts, lockUntil
+    const user = await User.findOne({ email }).select('+password +loginAttempts +lockUntil');
+
+    if (!user) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid email or password' 
+      });
+    }
+
+    // Check if account is locked
+    if (user.isLocked && user.isLocked()) {
+      const lockTime = Math.ceil((user.lockUntil - Date.now()) / 60000);
+      return res.status(403).json({ 
+        success: false, 
+        message: `Account locked due to multiple failed login attempts. Try again in ${lockTime} minutes.` 
+      });
+    }
+
+    // Check if account is active
+    if (!user.active) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Account has been deactivated. Please contact support.' 
+      });
+    }
+
+    // Check password
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      // Increment login attempts
+      user.loginAttempts = (user.loginAttempts || 0) + 1;
+      
+      // Lock account after 5 failed attempts
+      if (user.loginAttempts >= 5) {
+        user.lockUntil = Date.now() + 30 * 60 * 1000; // Lock for 30 minutes
+        await user.save();
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Account locked due to multiple failed login attempts. Try again in 30 minutes.' 
+        });
+      }
+      
+      await user.save();
+      return res.status(401).json({ 
+        success: false, 
+        message: `Invalid email or password. ${5 - user.loginAttempts} attempts remaining.` 
+      });
+    }
+
+    // Reset login attempts on successful login
+    user.loginAttempts = 0;
+    user.lockUntil = undefined;
+    user.lastLogin = Date.now();
+    await user.save();
+
+    const token = generateToken(user._id, user.role);
 
     res.json({
       success: true,
-      data: users,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(count / limit),
-        totalUsers: count,
+      message: 'Login successful',
+      token,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        permissions: user.permissions || user.getDefaultPermissions(),
+        avatar: user.avatar,
+        verified: user.verified,
+        active: user.active,
+        sellerDetails: user.sellerDetails,
+        lastLogin: user.lastLogin,
       },
     });
   } catch (error) {
@@ -41,20 +164,12 @@ export const getUsers = async (req, res) => {
   }
 };
 
-// @desc    Get user by ID
-// @route   GET /api/users/:id
+// @desc    Get current user
+// @route   GET /api/users/me
 // @access  Private
-export const getUserById = async (req, res) => {
+export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
+    const user = await User.findById(req.user._id);
     res.json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -66,217 +181,142 @@ export const getUserById = async (req, res) => {
 // @access  Private
 export const updateProfile = async (req, res) => {
   try {
-    const allowedUpdates = ['name', 'phone', 'bio', 'avatar', 'agentDetails', 'preferences'];
-    const updates = {};
+    const fieldsToUpdate = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      bio: req.body.bio,
+    };
 
-    Object.keys(req.body).forEach(key => {
-      if (allowedUpdates.includes(key)) {
-        updates[key] = req.body[key];
-      }
+    const user = await User.findByIdAndUpdate(req.user._id, fieldsToUpdate, {
+      new: true,
+      runValidators: true,
     });
 
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      updates,
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    res.json({ 
-      success: true, 
-      message: 'Profile updated successfully',
-      data: user 
-    });
+    res.json({ success: true, data: user });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Update user role (Admin only)
-// @route   PUT /api/users/:id/role
-// @access  Private/Admin
-export const updateUserRole = async (req, res) => {
+// @desc    Update user password
+// @route   PUT /api/users/update-password
+// @access  Private
+export const updatePassword = async (req, res) => {
   try {
-    const { role } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
-    if (!['User', 'Agent', 'Admin'].includes(role)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid role' 
-      });
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Please provide both current and new password' });
     }
 
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.user._id).select('+password');
 
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
+    // Check if current password matches
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Invalid current password' });
     }
 
-    user.role = role;
-    user.permissions = user.getDefaultPermissions();
+    user.password = newPassword;
     await user.save();
 
-    res.json({
-      success: true,
-      message: `User role updated to ${role}`,
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-// @desc    Update user permissions (Admin only)
-// @route   PUT /api/users/:id/permissions
-// @access  Private/Admin
-export const updateUserPermissions = async (req, res) => {
-  try {
-    const { permissions } = req.body;
-
-    if (!Array.isArray(permissions)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Permissions must be an array' 
-      });
-    }
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { permissions },
-      { new: true, runValidators: true }
-    ).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'User permissions updated',
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-// @desc    Deactivate user (Admin only)
-// @route   PUT /api/users/:id/deactivate
-// @access  Private/Admin
-export const deactivateUser = async (req, res) => {
-  try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { active: false },
-      { new: true }
-    ).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'User deactivated successfully',
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-// @desc    Activate user (Admin only)
-// @route   PUT /api/users/:id/activate
-// @access  Private/Admin
-export const activateUser = async (req, res) => {
-  try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { active: true, loginAttempts: 0, lockUntil: undefined },
-      { new: true }
-    ).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    res.json({
-      success: true,
-      message: 'User activated successfully',
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-};
-
-// @desc    Delete user (Admin only)
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
-export const deleteUser = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    // Prevent deleting admin users
-    if (user.role === 'Admin') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Cannot delete admin users' 
-      });
-    }
-
-    await user.deleteOne();
-
-    res.json({
-      success: true,
-      message: 'User deleted successfully',
-    });
+    res.json({ success: true, message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// @desc    Get user stats
-// @route   GET /api/users/stats
-// @access  Private/Admin
-export const getUserStats = async (req, res) => {
+// @desc    Get user saved properties
+// @route   GET /api/users/saved-properties
+// @access  Private
+export const getSavedProperties = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const activeUsers = await User.countDocuments({ active: true });
-    const verifiedUsers = await User.countDocuments({ verified: true });
+    const user = await User.findById(req.user._id).populate({
+      path: 'savedProperties',
+      populate: { path: 'agent', select: 'name email phone avatar' },
+    });
+
+    const savedProperties = user.savedProperties.map(p => ({
+        id: p._id,
+        name: p.name,
+        price: p.price,
+        location: typeof p.location === 'string' ? p.location : (p.location?.address || 'Unknown'),
+        image: p.images?.[0]?.url || 'https://images.unsplash.com/photo-1580587771525-78b9dba3b91d?w=800&q=80',
+        beds: p.specifications?.bedrooms || 0,
+        baths: p.specifications?.bathrooms || 0,
+        sqft: p.specifications?.sqft || 0,
+        type: p.propertyType,
+        propertyType: p.propertyType,
+        listingType: p.listingType,
+        status: p.status,
+        badge: p.status === 'Sold' ? 'Sold' : (p.status === 'Rented' ? 'Rented' : (p.featured ? 'Featured' : 'New')),
+        tags: p.features || [],
+        owner: p.owner,
+        agent: p.agent,
+        isSaved: true
+    }));
+
+    res.json({ success: true, data: savedProperties });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+// @desc    Get user notifications
+// @route   GET /api/users/notifications
+// @access  Private
+export const getNotifications = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    // Sort by date desc
+    const notifications = user.notifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.json({ success: true, data: notifications });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Mark notifications as read
+// @route   PUT /api/users/notifications/read
+// @access  Private
+export const markNotificationsRead = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
     
-    const usersByRole = await User.aggregate([
-      { $group: { _id: '$role', count: { $sum: 1 } } },
-    ]);
-
-    res.json({
-      success: true,
-      data: {
-        total: totalUsers,
-        active: activeUsers,
-        verified: verifiedUsers,
-        byRole: usersByRole,
-      },
+    // Mark only unread ones as read
+    let updatedCount = 0;
+    user.notifications.forEach(notif => {
+        if (!notif.read) {
+            notif.read = true;
+            updatedCount++;
+        }
     });
+
+    if (updatedCount > 0) {
+        await user.save();
+    }
+
+    res.json({ success: true, message: 'Notifications marked as read', count: updatedCount });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+};
+
+// Helper: Create notification (internal use)
+export const createNotification = async (userId, type, title, message, link) => {
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            user.notifications.push({
+                notificationType: type,
+                title,
+                message,
+                link,
+                createdAt: new Date()
+            });
+            await user.save();
+        }
+    } catch (error) {
+        console.error("Failed to create notification:", error);
+    }
 };
