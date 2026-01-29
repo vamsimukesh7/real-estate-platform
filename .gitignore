@@ -38,3 +38,10 @@ Thumbs.db
 .cache/
 .temp/
 .tmp/
+
+# Local documentation
+ROLE_BASED_AUTH.md
+SETUP.md
+QUICKSTART.md
+DIAGRAM.md
+SERVICES.md
