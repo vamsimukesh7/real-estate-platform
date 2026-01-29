@@ -82,7 +82,6 @@
 ### **Additional Services**
 - **Cloudinary** - Image/video hosting
 - **Stripe/Razorpay** - Payment processing
-- **Google Maps API** - Location services
 - **Nodemailer** - Email notifications
 
 ## 📁 Project Structure
