@@ -19,7 +19,7 @@ export const ThemeProvider = ({ children }) => {
             root.classList.add('dark');
         } else {
             root.classList.remove('dark');
-        }
+        } 
         localStorage.setItem('theme', appearance);
     }, [appearance]);
 

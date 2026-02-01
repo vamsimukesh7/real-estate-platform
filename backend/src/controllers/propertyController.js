@@ -149,7 +149,13 @@ export const getProperty = async (req, res) => {
 export const createProperty = async (req, res) => {
   try {
     // Map frontend flat structure to backend schema
-    const { name, price, location, type, status, beds, baths, sqft, image } = req.body;
+    const { name, price, location, type, status, beds, baths, sqft, description, features, amenities } = req.body;
+    
+    // Handle Image: File Upload (Cloudinary) > URL String > Default
+    let imageUrl = req.body.image; // If user provided a URL string
+    if (req.file && req.file.path) {
+        imageUrl = req.file.path; // Multer-Cloudinary automatically puts the URL here
+    }
 
     // Determine listing type from status or default to Sale
     let listingType = 'Sale';
@@ -165,17 +171,16 @@ export const createProperty = async (req, res) => {
         location, // Can be string now
         propertyType: type,
         status: 'Active', // Always start as Active unless specified
-        // But map modal "Status" to listingType logic, and reset status to Active
-        // If user selected "Sold" in modal, maybe start as Sold? But usually creating new listing implies Active.
-        // Let's assume intent is Active listing of that type.
         
         specifications: {
             bedrooms: Number(beds) || 0,
             bathrooms: Number(baths) || 0,
             sqft: Number(sqft) || 0
         },
-        images: image ? [{ url: image }] : [],
-        description: 'Added via Dashboard', // Default
+        images: imageUrl ? [{ url: imageUrl }] : [],
+        description: description || 'No description provided',
+        features: features ? features.split(',').map(f => f.trim()).filter(f => f) : [],
+        amenities: amenities ? amenities.split(',').map(a => a.trim()).filter(a => a) : [],
         listingType: listingType, 
         owner: req.user ? req.user._id : '000000000000000000000000'
     };
@@ -250,6 +255,20 @@ export const updateProperty = async (req, res) => {
 
     const oldPrice = property.price;
     const newPrice = req.body.price;
+
+    // Handle Image Update
+    if (req.file && req.file.path) {
+        // If there's a new file, add it as the primary image
+        // In a real app we might append, but for simplicty let's replace or add to front
+        const newImage = { url: req.file.path };
+        if (req.body.replaceImage === 'true' || !property.images) {
+             property.images = [newImage];
+        } else {
+             property.images.unshift(newImage); // Add new image to front
+        }
+        // Force update explicitly if using findByIdAndUpdate won't catch deeply nested array push easily with just 'req.body'
+        req.body.images = property.images; 
+    }
 
     console.log(`[UpdateProperty] Updating ${req.params.id} with:`, JSON.stringify(req.body, null, 2));
 

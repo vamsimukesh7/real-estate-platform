@@ -18,7 +18,8 @@ const MessagesWidget = ({ activeChatUser }) => {
     useEffect(() => {
         if (!user) return;
 
-        const newSocket = io('http://localhost:5000');
+        const socketUrl = import.meta.env.VITE_API_URL || window.location.origin;
+        const newSocket = io(socketUrl, { path: '/socket.io' }); // Ensure path is standard if using same domain
         setSocket(newSocket);
 
         newSocket.on('connect', () => {

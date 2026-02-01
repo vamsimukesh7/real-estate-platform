@@ -15,6 +15,7 @@ import {
   getMyProperties,
 } from '../controllers/propertyController.js';
 import { protect, authorize, checkPermission, optionalAuth } from '../middlewares/auth.js';
+import upload from '../middlewares/upload.js';
 
 const router = express.Router();
 
@@ -26,10 +27,10 @@ router.get('/my-properties', protect, authorize('Buyer'), getMyProperties); // R
 router.get('/:id', getProperty);
 
 // Protected routes - Seller, Agent and Admin can create
-router.post('/', protect, authorize('Seller', 'Agent', 'Admin'), createProperty);
+router.post('/', protect, authorize('Seller', 'Agent', 'Admin'), upload.single('image'), createProperty);
 
 // Protected routes - Owner or Admin can update/delete
-router.put('/:id', protect, updateProperty);
+router.put('/:id', protect, upload.single('image'), updateProperty);
 router.delete('/:id', protect, authorize('Seller', 'Agent', 'Admin'), deleteProperty);
 
 // Protected routes - Any authenticated user can save
