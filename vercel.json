@@ -15,16 +15,20 @@
     ],
     "rewrites": [
         {
-            "source": "/socket.io/(.*)",
-            "destination": "/backend/index.js"
-        },
-        {
             "source": "/api/(.*)",
             "destination": "/backend/index.js"
         },
         {
+            "source": "/socket.io/(.*)",
+            "destination": "/backend/index.js"
+        },
+        {
             "source": "/(.*)",
-            "destination": "/index.html"
+            "destination": "/frontend/$1"
+        },
+        {
+            "source": "/(.*)",
+            "destination": "/frontend/index.html"
         }
     ]
 }
